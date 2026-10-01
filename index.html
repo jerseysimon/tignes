@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tignes Christmas flats</title>
+<meta name="description" content="Single flats sleeping 8 in Tignes (Val Claret, Le Lac, Le Lavachet) free for Sat 26 Dec 2026 – Sat 2 Jan 2027, with prices, layouts, links and a map.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#15202b; --muted:#5b6876; --line:#e1e5ea; --soft:#eef1f5;
+    --link:#1d4ed8; --btn:#15202b; --btn-ink:#ffffff;
+    --vc:#1d4ed8; --lac:#0f766e; --lav:#b45309; --prev:#6b7280;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1318; --card:#161d25; --ink:#e6ecf2; --muted:#9aa8b6; --line:#27313c; --soft:#1c252f;
+      --link:#8fb0ff; --btn:#e6ecf2; --btn-ink:#0e1318;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  a{color:var(--link)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* Header */
+  header{padding:40px 0 8px}
+  .eyebrow{font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  h1{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{margin:0;color:var(--muted);max-width:60ch}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+  .stat b{display:block;font-size:1.25rem;line-height:1.2}
+  .stat span{font-size:.85rem;color:var(--muted)}
+
+  section{margin:34px 0}
+  h2{font-size:1.25rem;margin:0 0 12px}
+  .lead{margin:-4px 0 14px;color:var(--muted);font-size:.95rem}
+
+  /* Legend + chips */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 12px;font-size:.9rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .dot--vc{background:var(--vc)} .dot--lac{background:var(--lac)} .dot--lav{background:var(--lav)} .dot--prev{background:var(--prev)}
+  .chip{display:inline-block;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+  .chip--vc{background:var(--vc)} .chip--lac{background:var(--lac)} .chip--lav{background:var(--lav)}
+
+  /* Map */
+  #map{height:min(62vh,520px);min-height:320px;border-radius:var(--radius);border:1px solid var(--line);background:var(--soft)}
+  .pin{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font:700 14px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)}
+  .pin--vc{background:#1d4ed8} .pin--lac{background:#0f766e} .pin--lav{background:#b45309}
+  .pin--prev{background:#6b7280;width:24px;height:24px;font-size:12px}
+  .leaflet-popup-content{margin:12px 14px;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .pop b{font-size:15px}
+  .pop .pop-price{font-weight:700}
+  .pop a{display:inline-block;margin-top:4px}
+
+  /* Comparison table */
+  .table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;min-width:620px;font-size:.95rem}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  td.r,th.r{text-align:right}
+  td .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;font-size:.8rem}
+  @media (max-width:600px){
+    table{min-width:0}
+    th,td{padding:9px 8px}
+    .c-area,.c-size,.c-lifts{display:none}
+  }
+
+  /* Cards */
+  .cards{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:820px){.cards{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+  .card.is-active{outline:3px solid var(--link);outline-offset:2px}
+  .card-head{display:flex;gap:12px;align-items:flex-start}
+  .card-head .pin{flex:0 0 auto;box-shadow:none;border:0}
+  .card-head h3{margin:0;font-size:1.15rem;line-height:1.25}
+  .card-head .where{margin-top:4px}
+  .price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .price strong{font-size:1.6rem;line-height:1}
+  .price span{color:var(--muted);font-size:.9rem}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+  .tag--hi{background:#fef3c7;color:#78350f;border-color:#fde68a}
+  @media (prefers-color-scheme: dark){.tag--hi{background:#3a2a06;color:#fcd34d;border-color:#5b430c}}
+  dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.93rem}
+  dt{color:var(--muted)}
+  dd{margin:0}
+  .also{font-size:.88rem;color:var(--muted);margin:0}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+  .btn{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;text-decoration:none;
+    padding:8px 13px;border-radius:10px;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer;font-family:inherit}
+  .btn--primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:focus-visible,a:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+
+  /* Notes */
+  .notes{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:6px 18px}
+  .notes ul{margin:12px 0;padding-left:20px}
+  .notes li{margin:8px 0}
+  .checks{display:flex;flex-wrap:wrap;gap:8px}
+  footer{color:var(--muted);font-size:.85rem;padding:10px 0 40px;border-top:1px solid var(--line);margin-top:40px}
+  footer p{margin:10px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">Tignes · Christmas 2026</p>
+  <h1>One flat for all eight of us</h1>
+  <p class="sub">Sat 26 Dec 2026 → Sat 2 Jan 2027 (7 nights) · 4 adults + 4 kids. Six single flats in Val Claret, Le Lac and Le Lavachet that sleep all of us and were still free for the week, cheapest first.</p>
+  <div class="stats">
+    <div class="stat"><b class="num">6 flats</b><span>still free for the week</span></div>
+    <div class="stat"><b class="num">€2,800–€7,900</b><span>total for the week</span></div>
+    <div class="stat"><b>1 Oct 2026</b><span>when availability was checked</span></div>
+  </div>
+</header>
+
+<section aria-labelledby="map-h">
+  <h2 id="map-h">Where they are</h2>
+  <div class="legend" aria-hidden="true">
+    <span><i class="dot dot--vc"></i>Val Claret</span>
+    <span><i class="dot dot--lac"></i>Le Lac</span>
+    <span><i class="dot dot--lav"></i>Le Lavachet</span>
+    <span><i class="dot dot--prev"></i>Last year's flat (booked this week)</span>
+  </div>
+  <div id="map" role="region" aria-label="Map of the six flats in Tignes"></div>
+</section>
+
+<section aria-labelledby="cmp-h">
+  <h2 id="cmp-h">At a glance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Flat</th><th class="c-area">Area</th><th class="r">Week</th><th class="r">Sleeps</th><th class="r c-size">Size</th><th class="c-lifts">To the lifts</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="n" style="background:var(--lav)">1</span></td><td><a href="#grand-pre-16">Grand Pré 16</a></td><td class="c-area">Le Lavachet</td><td class="r num"><b>€2,800</b></td><td class="r num">8</td><td class="r num c-size">55 m²</td><td class="c-lifts">250 m</td></tr>
+        <tr><td><span class="n" style="background:var(--lav)">2</span></td><td><a href="#roches-rouges-b33">Roches Rouges B33</a></td><td class="c-area">Le Lavachet</td><td class="r num"><b>€4,863</b></td><td class="r num">10</td><td class="r num c-size">80 m²</td><td class="c-lifts">250 m</td></tr>
+        <tr><td><span class="n" style="background:var(--vc)">3</span></td><td><a href="#curling-b3-91">Curling B3 91</a></td><td class="c-area">Val Claret centre</td><td class="r num"><b>€5,850</b></td><td class="r num">9</td><td class="r num c-size">75 m²</td><td class="c-lifts">Ski-in/ski-out, 150 m</td></tr>
+        <tr><td><span class="n" style="background:var(--vc)">4</span></td><td><a href="#rond-point-a108">Rond Point des Pistes A108</a></td><td class="c-area">Val Claret, Grande Motte</td><td class="r num"><b>€6,210</b></td><td class="r num">8</td><td class="r num c-size">65 m²</td><td class="c-lifts">Ski-in/ski-out, 50 m</td></tr>
+        <tr><td><span class="n" style="background:var(--lac)">5</span></td><td><a href="#bec-rouge-005">Bec Rouge 005</a></td><td class="c-area">Le Lac</td><td class="r num"><b>€7,221</b></td><td class="r num">10</td><td class="r num c-size">120 m²</td><td class="c-lifts">Ski-in/ski-out, 100 m</td></tr>
+        <tr><td><span class="n" style="background:var(--lac)">6</span></td><td><a href="#palafour-lodge-4">Palafour Lodge 4</a></td><td class="c-area">Le Lac</td><td class="r num"><b>€7,900</b></td><td class="r num">8</td><td class="r num c-size">84 m²</td><td class="c-lifts">At the Palafour chair</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="flats-h">
+  <h2 id="flats-h">The flats</h2>
+  <p class="lead">Prices are the total for the week at the cheapest site found. Other sites selling the same flat are listed underneath.</p>
+  <div class="cards">
+
+    <article class="card" id="grand-pre-16">
+      <div class="card-head">
+        <div class="pin pin--lav" aria-hidden="true">1</div>
+        <div><h3>Grand Pré 16</h3><div class="where"><span class="chip chip--lav">Le Lavachet</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€2,800</strong><span>via Tignes Réservation</span></div>
+      <div class="tags"><span class="tag tag--hi">Cheapest</span><span class="tag">Sleeps 8</span><span class="tag">Same size as last year's flat</span></div>
+      <dl>
+        <dt>Size</dt><dd>55 m², 2 bedrooms, 2nd floor with lift, 2★</dd>
+        <dt>Beds</dt><dd>Double room (160 cm) · bunk room with two folding bunks (4) · sofa bed in the living room (2)</dd>
+        <dt>Bathroom</dt><dd>1 bathroom with bath, plus separate WC</dd>
+        <dt>Location</dt><dd>250 m to the lifts · about 650 m (8–10 min walk) to Le Lac centre</dd>
+        <dt>Other</dt><dd>South-facing, 3 balconies · washing machine, dishwasher · private owner · €1,000 deposit</dd>
+      </dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://booking.tignes.net/3-bedrooms-apartment-8-people-grand-pre-16-tignes-le-lavachet-grandpre16.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <button class="btn" type="button" data-show="1">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="roches-rouges-b33">
+      <div class="card-head">
+        <div class="pin pin--lav" aria-hidden="true">2</div>
+        <div><h3>Roches Rouges B33</h3><div class="where"><span class="chip chip--lav">Le Lavachet</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€4,863</strong><span>via Tignes Réservation</span></div>
+      <div class="tags"><span class="tag">Sleeps 10</span><span class="tag">Cleaning included</span></div>
+      <dl>
+        <dt>Size</dt><dd>80 m², 3 bedrooms, 2nd floor, <b>no lift</b></dd>
+        <dt>Beds</dt><dd>Every bedroom has a pull-out sofa bed (2 × 80 cm); bedrooms 1 and 3 also have bunk beds</dd>
+        <dt>Bathroom</dt><dd>Bathroom with bath, shower room with WC, separate WC</dd>
+        <dt>Location</dt><dd>250 m to the lifts</dd>
+        <dt>Other</dt><dd>South/west terrace · end-of-stay cleaning included · managed by Interhome · €500 deposit</dd>
+      </dl>
+      <p class="also">Also on Travelski €5,009 · Airbnb €5,097 · Booking.com €5,233</p>
+      <div class="links">
+        <a class="btn btn--primary" href="https://booking.tignes.net/3-bedrooms-10-people-roches-rouges-b-33-tignes-le-lavachet-fr73512101.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <a class="btn" href="https://www.booking.com/hotel/fr/apartment-les-roches-rouges.en-gb.html?checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+        <button class="btn" type="button" data-show="2">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="curling-b3-91">
+      <div class="card-head">
+        <div class="pin pin--vc" aria-hidden="true">3</div>
+        <div><h3>Curling B3 91</h3><div class="where"><span class="chip chip--vc">Val Claret centre</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€5,850</strong><span>via Tignes Réservation</span></div>
+      <div class="tags"><span class="tag tag--hi">Best value in Val Claret</span><span class="tag">Sleeps 9</span><span class="tag">Ski-in/ski-out</span></div>
+      <dl>
+        <dt>Size</dt><dd>75 m², 3 bedrooms, 5th floor with lift, 3★</dd>
+        <dt>Beds</dt><dd>Double (160 cm) · double (140 cm) · bunk + sofa bed for 2 in bedroom 3 · sofa bed (140 cm) in the living room</dd>
+        <dt>Bathroom</dt><dd>2 bathrooms (bath, shower) and 2 WCs</dd>
+        <dt>Location</dt><dd>150 m to the lifts · 80 m to the ESF ski school · shops and bars at the foot of the building</dd>
+        <dt>Other</dt><dd>South balcony · Wi-Fi · private owner · €1,000 deposit</dd>
+      </dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://booking.tignes.net/4-pieces-9-personnes-curling-b3-91-tignes-val-claret-center-curlingb391.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <button class="btn" type="button" data-show="3">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="rond-point-a108">
+      <div class="card-head">
+        <div class="pin pin--vc" aria-hidden="true">4</div>
+        <div><h3>Rond Point des Pistes A108</h3><div class="where"><span class="chip chip--vc">Val Claret, Grande Motte</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€6,210</strong><span>direct from Mountain Collection</span></div>
+      <div class="tags"><span class="tag">Sleeps 8</span><span class="tag">Ski-in/ski-out</span><span class="tag">Linen &amp; cleaning included</span></div>
+      <dl>
+        <dt>Size</dt><dd>65 m², renovated, 1st floor with lift, 2★</dd>
+        <dt>Beds</dt><dd>Two double bedrooms · two cabins with bunk beds</dd>
+        <dt>Bathroom</dt><dd>Bathroom with bath and WC, shower room with WC</dd>
+        <dt>Location</dt><dd>50 m to the lifts and ESF, next to the Grande Motte funicular · shops about 100 m</dd>
+        <dt>Other</dt><dd>East balcony · Wi-Fi · washing machine · linen, towels and end-of-stay cleaning (not the kitchen) included</dd>
+      </dl>
+      <p class="also">Also on Travelski €6,236 · Tignes Réservation €6,471 · Booking.com €7,171</p>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.mountaincollection.com/en/product/6243?date_in=2026-12-26&amp;date_out=2027-01-02&amp;pax=4-12-12-12-12" target="_blank" rel="noopener">Mountain Collection ↗</a>
+        <a class="btn" href="https://booking.tignes.net/3-bedrooms-apartment-rond-point-des-pistes-a-108-tignes-val-claret-grande-motte-tirppa108.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <button class="btn" type="button" data-show="4">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="bec-rouge-005">
+      <div class="card-head">
+        <div class="pin pin--lac" aria-hidden="true">5</div>
+        <div><h3>Bec Rouge 005</h3><div class="where"><span class="chip chip--lac">Le Lac</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€7,221</strong><span>direct from Mountain Collection</span></div>
+      <div class="tags"><span class="tag tag--hi">Most space</span><span class="tag">Sleeps 10</span><span class="tag">Ski-in/ski-out</span><span class="tag">Linen &amp; cleaning included</span></div>
+      <dl>
+        <dt>Size</dt><dd>120 m², renovated, 3 bedrooms, 5th floor with lift, 4★</dd>
+        <dt>Beds</dt><dd>Double (160 cm) · double (180 cm) · bunk room with two bunks (4) · sofa bed (140 cm) in the living room</dd>
+        <dt>Bathroom</dt><dd>1 bathroom and 2 shower rooms, 2 separate WCs</dd>
+        <dt>Location</dt><dd>About 100 m to the lifts and ESF, close to Le Lac centre</dd>
+        <dt>Other</dt><dd>Wi-Fi · washing machine and tumble dryer · linen, towels and final cleaning included · €2,000 deposit</dd>
+      </dl>
+      <p class="also">Also on Travelski €7,245 · Tignes Réservation €7,522</p>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.mountaincollection.com/en/product/58?date_in=2026-12-26&amp;date_out=2027-01-02&amp;pax=4-12-12-12-12" target="_blank" rel="noopener">Mountain Collection ↗</a>
+        <a class="btn" href="https://booking.tignes.net/4-bedrooms-apartment-10-people-bec-rouge-005-tignes-le-lac-le-bec-rouge-tibec005.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <button class="btn" type="button" data-show="5">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="palafour-lodge-4">
+      <div class="card-head">
+        <div class="pin pin--lac" aria-hidden="true">6</div>
+        <div><h3>Palafour Lodge 4</h3><div class="where"><span class="chip chip--lac">Le Lac</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€7,900</strong><span>via Tignes Réservation</span></div>
+      <div class="tags"><span class="tag tag--hi">Right at the lifts</span><span class="tag">Sleeps 8</span><span class="tag">Linen &amp; cleaning included</span></div>
+      <dl>
+        <dt>Size</dt><dd>84 m², 2 bedrooms + bunk mezzanine, 1st floor, <b>no lift</b>, "Premium" range</dd>
+        <dt>Beds</dt><dd>Double (160 cm) · twin room (2 singles) · cabin/mezzanine with two bunk beds (4)</dd>
+        <dt>Bathroom</dt><dd>1 bathroom with bath and shower, plus separate WC</dd>
+        <dt>Location</dt><dd>Direct access to the Palafour chair and Tovière gondola · ESF, shops and the Lagon pool next door</dd>
+        <dt>Other</dt><dd>Fibre Wi-Fi · beds made, linen, towels and end-of-stay cleaning included · €2,000 deposit</dd>
+      </dl>
+      <p class="also">Also on Ski-Planet €7,900 · Travelski €8,295 · Booking.com €8,581</p>
+      <div class="links">
+        <a class="btn btn--primary" href="https://booking.tignes.net/2-bedrooms-cabin-apartment-8-people-palafour-lodge-4-tignes-le-lac-le-bec-rouge-palafourlodge4.html" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+        <a class="btn" href="https://www.ski-planet.com/en/3-room-apartment-cabin-8-people-4p,tignes-le-lac_60754.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="6">Show on map</button>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section aria-labelledby="notes-h">
+  <h2 id="notes-h">Good to know</h2>
+  <div class="notes">
+    <ul>
+      <li><b>Saturday to Saturday only.</b> Nothing sleeping 8 was free for a Sunday 27 Dec start on any site checked.</li>
+      <li><b>Flats for 7:</b> none free that week. Last year's flat (Grand Tichot A39, Val Claret) is already booked for 26 Dec. It's free the week after (2–9 Jan) at €2,300.</li>
+      <li><b>Extra costs:</b> Tignes Réservation adds €20 per booking plus tourist tax (€1.10 per adult per night last year). Linen is extra unless the listing says it's included, and a damage deposit is taken on arrival.</li>
+      <li><b>Paying and cancelling (Tignes Réservation, last year's terms):</b> 30% to book, balance 30 days before arrival. Cancelling more than 60 days out (before about 27 Oct) cost €15–50.</li>
+      <li><b>The areas:</b> Val Claret is the top end, by the Grande Motte funicular. Le Lac is the main village by the lake, with the Tovière gondola and Palafour chair. Le Lavachet is quieter, just past Le Lac. Free shuttle buses link them in winter.</li>
+      <li><b>Also free, but dearer for what you get:</b> <a href="https://www.booking.com/hotel/fr/tignes-appartement-prestige-8-pers-3-pieces-wifi-inclus-fr-1-502-611.en-gb.html?checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1" target="_blank" rel="noopener">Appartement Prestige 4 Pièces</a>, Val Claret, 60 m², sleeps 8, €7,636 on Booking.com · <a href="https://www.booking.com/hotel/fr/appartement-pixel-by-explorhome.en-gb.html?checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1" target="_blank" rel="noopener">Appartement Pixel</a>, Les Almes (Le Lac), 80 m², €7,983 on Booking.com. Other flats for 8 that came up were dearer still.</li>
+      <li>Prices and availability change daily, so check the listing before booking.</li>
+    </ul>
+  </div>
+</section>
+
+<section aria-labelledby="live-h">
+  <h2 id="live-h">Re-run the searches</h2>
+  <p class="lead">Each link opens a live search for 8 people, 26 Dec – 2 Jan.</p>
+  <div class="checks">
+    <a class="btn" href="https://booking.tignes.net/booking?action=result&amp;reload=1&amp;redirectionUrl=0&amp;cid=1&amp;target=&amp;MOTEUR_TYPES_PRESTATAIRE=HEBERGEMENTS&amp;type_prestataire=G&amp;datedeb=26%2F12%2F2026&amp;datefin=02%2F01%2F2027&amp;duree=7&amp;adultes=4&amp;enfants=4" target="_blank" rel="noopener">Tignes Réservation ↗</a>
+    <a class="btn" href="https://www.mountaincollection.com/en/holiday-rentals/tignes?id=zte_1545&amp;date_in=2026-12-26&amp;date_out=2027-01-02&amp;package_id=hebergement&amp;pax=4-12-12-12-12&amp;display=list" target="_blank" rel="noopener">Mountain Collection ↗</a>
+    <a class="btn" href="https://www.travelski.com/stations/tignes.html#e=1&amp;c[]=&amp;parentStation[]=110033&amp;beginDate=2026-12-26&amp;endDate=2027-01-02&amp;capacity=8&amp;rc_size=20" target="_blank" rel="noopener">Travelski ↗</a>
+    <a class="btn" href="https://www.booking.com/searchresults.en-gb.html?ss=Tignes&amp;checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1&amp;order=price" target="_blank" rel="noopener">Booking.com ↗</a>
+    <a class="btn" href="https://www.airbnb.co.uk/s/Tignes--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.478&amp;ne_lng=6.925&amp;sw_lat=45.448&amp;sw_lng=6.890&amp;zoom=14" target="_blank" rel="noopener">Airbnb ↗</a>
+  </div>
+</section>
+
+<footer>
+  <p>Compiled 1 October 2026 from Tignes Réservation, Mountain Collection, Travelski, Ski-Planet, Interhome, Booking.com, Airbnb and Abritel. Map pins are approximate building locations.</p>
+</footer>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var flats = [
+    {n:1, id:'grand-pre-16',      name:'Grand Pré 16',               area:'Le Lavachet',              zone:'lav', lat:45.47211, lng:6.91285, price:'€2,800', sleeps:'Sleeps 8, 55 m²',
+     url:'https://booking.tignes.net/3-bedrooms-apartment-8-people-grand-pre-16-tignes-le-lavachet-grandpre16.html', site:'Tignes Réservation'},
+    {n:2, id:'roches-rouges-b33', name:'Roches Rouges B33',          area:'Le Lavachet',              zone:'lav', lat:45.47038, lng:6.91287, price:'€4,863', sleeps:'Sleeps 10, 80 m²',
+     url:'https://booking.tignes.net/3-bedrooms-10-people-roches-rouges-b-33-tignes-le-lavachet-fr73512101.html', site:'Tignes Réservation'},
+    {n:3, id:'curling-b3-91',     name:'Curling B3 91',              area:'Val Claret centre',        zone:'vc',  lat:45.45633, lng:6.90060, price:'€5,850', sleeps:'Sleeps 9, 75 m²',
+     url:'https://booking.tignes.net/4-pieces-9-personnes-curling-b3-91-tignes-val-claret-center-curlingb391.html', site:'Tignes Réservation'},
+    {n:4, id:'rond-point-a108',   name:'Rond Point des Pistes A108', area:'Val Claret, Grande Motte', zone:'vc',  lat:45.45339, lng:6.89860, price:'€6,210', sleeps:'Sleeps 8, 65 m²',
+     url:'https://www.mountaincollection.com/en/product/6243?date_in=2026-12-26&date_out=2027-01-02&pax=4-12-12-12-12', site:'Mountain Collection'},
+    {n:5, id:'bec-rouge-005',     name:'Bec Rouge 005',              area:'Le Lac',                   zone:'lac', lat:45.46919, lng:6.90313, price:'€7,221', sleeps:'Sleeps 10, 120 m²',
+     url:'https://www.mountaincollection.com/en/product/58?date_in=2026-12-26&date_out=2027-01-02&pax=4-12-12-12-12', site:'Mountain Collection'},
+    {n:6, id:'palafour-lodge-4',  name:'Palafour Lodge 4',           area:'Le Lac',                   zone:'lac', lat:45.46895, lng:6.90601, price:'€7,900', sleeps:'Sleeps 8, 84 m²',
+     url:'https://booking.tignes.net/2-bedrooms-cabin-apartment-8-people-palafour-lodge-4-tignes-le-lac-le-bec-rouge-palafourlodge4.html', site:'Tignes Réservation'}
+  ];
+  var lastYear = {name:'Grand Tichot A39', lat:45.45738, lng:6.90100};
+
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<p style="padding:16px;margin:0">The map could not load. The flats are listed below.</p>';
+    return;
+  }
+
+  var map = L.map('map', {scrollWheelZoom: false});
+
+  var streets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17,
+    attribution: 'Map data &copy; OpenStreetMap contributors, SRTM | Style &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'
+  });
+  var pistes = L.tileLayer('https://tiles.opensnowmap.org/pistes/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: 'Pistes &copy; <a href="https://www.opensnowmap.org">OpenSnowMap</a> (CC-BY-SA)'
+  }).addTo(map);
+  L.control.layers({'Streets': streets, 'Topographic': topo}, {'Pistes and lifts': pistes}, {collapsed: true}).addTo(map);
+
+  function pin(cls, label, size) {
+    return L.divIcon({
+      className: '',
+      html: '<div class="pin ' + cls + '">' + label + '</div>',
+      iconSize: [size, size], iconAnchor: [size / 2, size / 2], popupAnchor: [0, -size / 2]
+    });
+  }
+
+  var markers = {};
+  var bounds = [];
+  flats.forEach(function (f) {
+    var html = '<div class="pop"><b>' + f.n + '. ' + f.name + '</b><br>' + f.area +
+      '<br><span class="pop-price">' + f.price + '</span> for the week · ' + f.sleeps +
+      '<br><a href="#' + f.id + '">Details below</a> · <a href="' + f.url + '" target="_blank" rel="noopener">' + f.site + ' ↗</a></div>';
+    var m = L.marker([f.lat, f.lng], {icon: pin('pin--' + f.zone, f.n, 30), title: f.name, riseOnHover: true})
+      .addTo(map).bindPopup(html);
+    m.on('popupopen', function () { highlight(f.id); });
+    markers[f.n] = m;
+    bounds.push([f.lat, f.lng]);
+  });
+
+  L.marker([lastYear.lat, lastYear.lng], {icon: pin('pin--prev', '★', 24), title: 'Last year: ' + lastYear.name, zIndexOffset: -100})
+    .addTo(map)
+    .bindPopup('<div class="pop"><b>Last year: ' + lastYear.name + '</b><br>Val Claret centre<br>Booked for 26 Dec; free 2–9 Jan at €2,300</div>');
+  bounds.push([lastYear.lat, lastYear.lng]);
+
+  map.fitBounds(bounds, {padding: [36, 36], maxZoom: 16});
+  map.on('focus', function () { map.scrollWheelZoom.enable(); });
+  map.on('blur', function () { map.scrollWheelZoom.disable(); });
+
+  function highlight(id) {
+    document.querySelectorAll('.card.is-active').forEach(function (c) { c.classList.remove('is-active'); });
+    var card = document.getElementById(id);
+    if (card) card.classList.add('is-active');
+  }
+
+  document.querySelectorAll('[data-show]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var n = Number(btn.getAttribute('data-show'));
+      var f = flats[n - 1];
+      mapEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+      map.setView([f.lat, f.lng], 16, {animate: true});
+      markers[n].openPopup();
+    });
+  });
+})();
+</script>
+</body>
+</html>
