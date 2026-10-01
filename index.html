@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Tignes Christmas flats</title>
-<meta name="description" content="Single flats sleeping 8 in Tignes (Val Claret, Le Lac, Le Lavachet) free for Sat 26 Dec 2026 – Sat 2 Jan 2027, with prices, layouts, links and a map.">
+<meta name="description" content="Single flats sleeping 8 in Tignes (Val Claret, Le Lac, Le Lavachet) free for Sat 26 Dec 2026 – Sat 2 Jan 2027, with prices, layouts, links and a map, plus how seven other snow-sure resorts compare on flat and lift-pass costs.">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root{
@@ -109,6 +109,80 @@
   .checks{display:flex;flex-wrap:wrap;gap:8px}
   footer{color:var(--muted);font-size:.85rem;padding:10px 0 40px;border-top:1px solid var(--line);margin-top:40px}
   footer p{margin:10px 0}
+
+  /* Other resorts */
+  .jump{margin:16px 0 0;font-size:.95rem}
+  .jump a{font-weight:600}
+  .badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;
+    background:#334155;color:#fff;font-weight:700;font-size:.75rem;margin-right:8px;vertical-align:1px}
+  .badge--home{background:#1d4ed8}
+  .small{font-size:.84rem;color:var(--muted)}
+  table.cmp2{min-width:860px}
+  table.cmp2 td{vertical-align:top}
+  table.cmp2 td.num{white-space:nowrap}
+  table.cmp2 td.num .small{display:block;white-space:normal}
+  table.cmp2 tr.is-home td{background:var(--soft)}
+  h3.sub-h{font-size:1.02rem;margin:22px 0 10px}
+  @media (min-width:601px){table.cmp2 td:first-child{white-space:nowrap}}
+  @media (max-width:600px){
+    table.cmp2{min-width:0}
+    .c-snow,.c-gva,.c-pass,.c-vs,.xtra{display:none}
+  }
+
+  /* Cost chart: flat + passes, stacked */
+  .viz{--series-1:#2a78d6;--series-2:#eb6834;--grid:#e8ebef;--lab:9.5rem;--tot:4.6rem;--gap:12px;
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 14px 12px}
+  @media (prefers-color-scheme: dark){.viz{--series-1:#3987e5;--series-2:#d95926;--grid:#222b35}}
+  @media (max-width:600px){.viz{--lab:6.4rem;--tot:4.1rem;--gap:8px;padding:14px 8px 10px}}
+  .viz-key{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 6px 6px;font-size:.86rem;color:var(--muted)}
+  .viz-key span{display:inline-flex;align-items:center;gap:7px}
+  .sw{display:inline-block;width:14px;height:10px;border-radius:2px}
+  .sw--flat{background:var(--series-1)} .sw--pass{background:var(--series-2)}
+  .sw--ref{width:0;height:14px;border-left:1px solid var(--ink);border-radius:0}
+  .bars{position:relative;padding-top:24px}
+  .bars-grid{position:absolute;top:0;bottom:0;left:calc(var(--lab) + var(--gap));right:calc(var(--tot) + var(--gap));
+    pointer-events:none;border-left:1px solid var(--grid);
+    background:linear-gradient(to right,var(--grid) 1px,transparent 1px) 0 0/calc(100% / 6) 100% repeat-x}
+  .ref{position:absolute;top:0;bottom:0;border-left:1px solid var(--ink)}
+  .ref span{position:absolute;top:2px;left:5px;font-size:.75rem;font-weight:600;color:var(--ink);white-space:nowrap}
+  .crow{position:relative;display:grid;grid-template-columns:var(--lab) 1fr var(--tot);column-gap:var(--gap);
+    align-items:center;min-height:36px;border-radius:8px;outline:none}
+  .crow:hover,.crow:focus-visible{background:var(--soft)}
+  .crow:focus-visible{box-shadow:0 0 0 3px var(--link)}
+  .clab{font-size:.9rem;line-height:1.2;padding-left:6px}
+  .clab small{display:block;color:var(--muted);font-size:.74rem}
+  .crow.is-home .clab{font-weight:700}
+  .ctrack{display:flex;gap:2px;height:18px}
+  .seg{display:block;height:100%}
+  .seg--flat{background:var(--series-1)}
+  .seg--pass{background:var(--series-2);border-radius:0 4px 4px 0}
+  .ctot{font-size:.9rem;font-weight:700;text-align:right;padding-right:6px;font-variant-numeric:tabular-nums}
+  .caxis{display:grid;grid-template-columns:var(--lab) 1fr var(--tot);column-gap:var(--gap);margin-top:4px}
+  .ticks{position:relative;height:18px;font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .ticks span{position:absolute;top:0;transform:translateX(-50%)}
+  .ticks span:first-child{transform:none}
+  .ticks span:last-child{transform:translateX(-100%)}
+  @media (max-width:600px){.ticks span:nth-child(even){display:none}}
+  .tip{position:absolute;z-index:5;pointer-events:none;min-width:180px;padding:9px 11px;font-size:.85rem;
+    background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.16);
+    opacity:0;transition:opacity .12s}
+  .tip.on{opacity:1}
+  .tip-name{display:block;font-weight:600;margin-bottom:5px}
+  .tip-row{display:flex;justify-content:space-between;align-items:center;gap:14px;color:var(--muted)}
+  .tip-row .v{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .tip-row .k{display:inline-block;width:12px;height:2px;margin-right:7px;vertical-align:middle}
+  .tip-row--total{border-top:1px solid var(--line);margin-top:5px;padding-top:5px}
+
+  /* Regional map */
+  #rmap{height:min(58vh,460px);min-height:300px;border-radius:var(--radius);border:1px solid var(--line);background:var(--soft)}
+  @media (max-width:600px){#rmap{height:340px}}
+  .pin--res{background:#334155} .pin--home{background:#1d4ed8}
+  .pin--sm{width:24px;height:24px;font-size:12px}
+  .apt{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:#6b7280;color:#fff;
+    font:700 11px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+  .leaflet-tooltip.apt-label{background:rgba(255,255,255,.92);color:#15202b;border:0;box-shadow:none;padding:1px 6px;
+    font:600 12px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .leaflet-tooltip.apt-label::before{display:none}
 </style>
 </head>
 <body>
@@ -123,6 +197,7 @@
     <div class="stat"><b class="num">€2,800–€7,900</b><span>total for the week</span></div>
     <div class="stat"><b>1 Oct 2026</b><span>when availability was checked</span></div>
   </div>
+  <p class="jump"><a href="#elsewhere">How seven other snow-sure resorts compare ↓</a></p>
 </header>
 
 <section aria-labelledby="map-h">
@@ -306,9 +381,147 @@
   </div>
 </section>
 
+<section id="elsewhere" aria-labelledby="else-h">
+  <h2 id="else-h">Or somewhere else? Seven other snow-sure resorts</h2>
+  <p class="lead">The cheapest single flat found in each resort for the same week (Sat 26 Dec – Sat 2 Jan, checked 1 Oct 2026), plus 6-day lift passes for 4 adults and 4 kids, cheapest total first. Tignes has the dearest lift pass of the lot, so most of the saving elsewhere comes from passes, not the flat.</p>
+
+  <div class="viz" role="group" aria-label="Flat plus lift passes for the week, by resort, cheapest first">
+    <p class="viz-key"><span><i class="sw sw--flat"></i>Flat for the week</span><span><i class="sw sw--pass"></i>6-day lift passes for all 8</span><span><i class="sw sw--ref"></i>Tignes total</span></p>
+    <div class="bars">
+      <div class="bars-grid" aria-hidden="true"><div class="ref" style="left:51.53%"><span>Tignes €6,184</span></div></div>
+      <div class="crow" tabindex="0" data-name="Les 2 Alpes" data-sub="" data-flat="2955" data-pass="1918" aria-label="Les 2 Alpes: flat €2,955 plus lift passes €1,918, total €4,873">
+        <div class="clab">Les 2 Alpes</div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:24.62%"></span><span class="seg seg--pass" style="width:15.98%"></span></div>
+        <div class="ctot">€4,873</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="La Plagne" data-sub="flat sleeps 7" data-flat="2819" data-pass="2664" aria-label="La Plagne: flat sleeping 7 €2,819 plus lift passes €2,664, total €5,483">
+        <div class="clab">La Plagne<small>flat sleeps 7</small></div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:23.49%"></span><span class="seg seg--pass" style="width:22.2%"></span></div>
+        <div class="ctot">€5,483</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="Cervinia" data-sub="" data-flat="3299" data-pass="2298" aria-label="Cervinia: flat €3,299 plus lift passes €2,298, total €5,597">
+        <div class="clab">Cervinia</div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:27.49%"></span><span class="seg seg--pass" style="width:19.15%"></span></div>
+        <div class="ctot">€5,597</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="Les Arcs" data-sub="flat sleeps 7" data-flat="3172" data-pass="2652" aria-label="Les Arcs: flat sleeping 7 €3,172 plus lift passes €2,652, total €5,824">
+        <div class="clab">Les Arcs<small>flat sleeps 7</small></div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:26.43%"></span><span class="seg seg--pass" style="width:22.1%"></span></div>
+        <div class="ctot">€5,824</div>
+      </div>
+      <div class="crow is-home" tabindex="0" data-name="Tignes" data-sub="Grand Pré 16, this page" data-flat="2800" data-pass="3384" aria-label="Tignes: flat €2,800 plus lift passes €3,384, total €6,184">
+        <div class="clab">Tignes<small>this page</small></div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:23.33%"></span><span class="seg seg--pass" style="width:28.2%"></span></div>
+        <div class="ctot">€6,184</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="Alpe d'Huez" data-sub="" data-flat="4365" data-pass="2402" aria-label="Alpe d'Huez: flat €4,365 plus lift passes €2,402, total €6,767">
+        <div class="clab">Alpe d'Huez</div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:36.38%"></span><span class="seg seg--pass" style="width:20.02%"></span></div>
+        <div class="ctot">€6,767</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="Les Menuires" data-sub="" data-flat="4601" data-pass="3064" aria-label="Les Menuires: flat €4,601 plus lift passes €3,064, total €7,665">
+        <div class="clab">Les Menuires</div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:38.34%"></span><span class="seg seg--pass" style="width:25.53%"></span></div>
+        <div class="ctot">€7,665</div>
+      </div>
+      <div class="crow" tabindex="0" data-name="Val Thorens" data-sub="" data-flat="7777" data-pass="2674" aria-label="Val Thorens: flat €7,777 plus lift passes €2,674, total €10,451">
+        <div class="clab">Val Thorens</div>
+        <div class="ctrack"><span class="seg seg--flat" style="width:64.81%"></span><span class="seg seg--pass" style="width:22.28%"></span></div>
+        <div class="ctot">€10,451</div>
+      </div>
+    </div>
+    <div class="caxis" aria-hidden="true"><span></span><div class="ticks"><span style="left:0">€0</span><span style="left:16.667%">€2k</span><span style="left:33.333%">€4k</span><span style="left:50%">€6k</span><span style="left:66.667%">€8k</span><span style="left:83.333%">€10k</span><span style="left:100%">€12k</span></div><span></span></div>
+    <div class="tip" aria-hidden="true"></div>
+  </div>
+
+  <h3 class="sub-h">The details</h3>
+  <div class="table-wrap">
+    <table class="cmp2">
+      <thead>
+        <tr><th>Resort</th><th class="c-snow">Height &amp; skiing</th><th class="c-gva">From Geneva</th><th>Cheapest flat found</th><th class="r">Flat</th><th class="r c-pass">Passes for 8</th><th class="r">Flat + passes</th><th class="r c-vs">vs Tignes</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="badge">1</span><b>Les 2 Alpes</b></td>
+          <td class="c-snow">Village 1,650 m · glacier to 3,600 m</td>
+          <td class="c-gva">~3¼ h<br><span class="small">Grenoble airport ~1¾ h</span></td>
+          <td><a href="https://www.airbnb.co.uk/rooms/1681032870581158776?check_in=2026-12-26&amp;check_out=2027-01-02&amp;adults=4&amp;children=4" target="_blank" rel="noopener">Airbnb flat&nbsp;↗</a><br><span class="small">Sleeps 8<span class="xtra"> · 2 bedrooms, 1 bathroom · new listing, no reviews yet</span></span></td>
+          <td class="r num">€2,955</td><td class="r num c-pass">€1,918</td><td class="r num"><b>€4,873</b></td><td class="r num c-vs">−€1,311</td>
+        </tr>
+        <tr>
+          <td><span class="badge">2</span><b>La Plagne</b></td>
+          <td class="c-snow">Villages 1,800–2,100 m, up to 3,250 m · Paradiski, 425 km</td>
+          <td class="c-gva">~2½ h</td>
+          <td><a href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=26&amp;Nbpers=7" target="_blank" rel="noopener">Plagne Lauze, Plagne 1800&nbsp;↗</a><br><span class="small">Sleeps 7<span class="xtra"> · 3 rooms · Ski-Planet. Cheapest for 8: Squaw Valley, Plagne Villages, ski-in/ski-out, €3,869</span></span></td>
+          <td class="r num">€2,819</td><td class="r num c-pass">€2,664<br><span class="small">Paradiski €2,968</span></td><td class="r num"><b>€5,483</b></td><td class="r num c-vs">−€701</td>
+        </tr>
+        <tr>
+          <td><span class="badge">3</span><b>Cervinia</b><br><span class="small">Italy</span></td>
+          <td class="c-snow">Village 2,050 m · glacier to 3,480 m · links to Zermatt</td>
+          <td class="c-gva">~3 h via the Mont Blanc tunnel<br><span class="small">Turin airport ~1¾ h</span></td>
+          <td><a href="https://www.airbnb.co.uk/rooms/45718627?check_in=2026-12-26&amp;check_out=2027-01-02&amp;adults=4&amp;children=4" target="_blank" rel="noopener">Airbnb flat&nbsp;↗</a><br><span class="small">Sleeps 8<span class="xtra"> · 2 bedrooms, 6 beds · rated 4.5 from 13 reviews</span></span></td>
+          <td class="r num">€3,299</td><td class="r num c-pass">€2,298</td><td class="r num"><b>€5,597</b></td><td class="r num c-vs">−€587</td>
+        </tr>
+        <tr>
+          <td><span class="badge">4</span><b>Les Arcs</b></td>
+          <td class="c-snow">Arc 2000 about 2,100 m, up to 3,226 m · Paradiski, 425 km</td>
+          <td class="c-gva">~2½ h</td>
+          <td><a href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=33&amp;Nbpers=7" target="_blank" rel="noopener">Résidence Varet, Arc 2000&nbsp;↗</a><br><span class="small">Sleeps 7<span class="xtra"> · 3 rooms · Ski-Planet. Cheapest for 8: €4,613 in Arc 1800 on <a href="https://www.lesarcs-reservation.com/reservez-votre-sejour" target="_blank" rel="noopener">Les Arcs Réservation</a></span></span></td>
+          <td class="r num">€3,172</td><td class="r num c-pass">€2,652<br><span class="small">Paradiski €2,968</span></td><td class="r num"><b>€5,824</b></td><td class="r num c-vs">−€360</td>
+        </tr>
+        <tr class="is-home">
+          <td><span class="badge badge--home">5</span><b>Tignes</b><br><span class="small">this page</span></td>
+          <td class="c-snow">1,550–3,456 m · Grande Motte glacier · Espace Killy, 300 km</td>
+          <td class="c-gva">~3 h</td>
+          <td><a href="#grand-pre-16">Grand Pré 16, Le Lavachet</a><br><span class="small">Sleeps 8<span class="xtra"> · 2 bedrooms · Tignes Réservation</span></span></td>
+          <td class="r num">€2,800</td><td class="r num c-pass">€3,384<br><span class="small">before family discount</span></td><td class="r num"><b>€6,184</b></td><td class="r num c-vs">–</td>
+        </tr>
+        <tr>
+          <td><span class="badge">6</span><b>Alpe d'Huez</b></td>
+          <td class="c-snow">1,860 m, up to 3,330 m · 250 km</td>
+          <td class="c-gva">~3¼ h<br><span class="small">Grenoble airport ~1¾ h</span></td>
+          <td><a href="https://www.airbnb.co.uk/rooms/40673564?check_in=2026-12-26&amp;check_out=2027-01-02&amp;adults=4&amp;children=4" target="_blank" rel="noopener">Airbnb flat&nbsp;↗</a><br><span class="small">Sleeps 6–8<span class="xtra"> · 3 bedrooms. Cheaper in Vaujany, a lower village linked by gondola: <a href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=31&amp;Nbpers=7" target="_blank" rel="noopener">Les Epinettes</a>, sleeps 8, €3,176</span></span></td>
+          <td class="r num">€4,365</td><td class="r num c-pass">€2,402</td><td class="r num"><b>€6,767</b></td><td class="r num c-vs">+€583</td>
+        </tr>
+        <tr>
+          <td><span class="badge">7</span><b>Les Menuires</b></td>
+          <td class="c-snow">1,850 m · 3 Vallées, 600 km</td>
+          <td class="c-gva">~2½ h</td>
+          <td><a href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=73&amp;Nbpers=7" target="_blank" rel="noopener">Hameau des Airelles&nbsp;↗</a><br><span class="small">Sleeps 8<span class="xtra"> · 4-room duplex · Ski-Planet</span></span></td>
+          <td class="r num">€4,601</td><td class="r num c-pass">€3,064<br><span class="small">3 Vallées</span></td><td class="r num"><b>€7,665</b></td><td class="r num c-vs">+€1,481</td>
+        </tr>
+        <tr>
+          <td><span class="badge">8</span><b>Val Thorens</b></td>
+          <td class="c-snow">2,300 m, Europe's highest resort · 3 Vallées, 600 km</td>
+          <td class="c-gva">~2¾ h</td>
+          <td><a href="https://booking.valthorens.com/booking?redirectionUrl=0&amp;cid=2&amp;target=&amp;MOTEUR_TYPES_PRESTATAIRE=MOTEUR_HEBERGEMENT&amp;action=result&amp;type_prestataire=I&amp;type_date=SS&amp;datedeb=26%2F12%2F2026&amp;duree=7&amp;personnes=8" target="_blank" rel="noopener">Balcons de Val Thorens&nbsp;↗</a><br><span class="small">Sleeps 8–10<span class="xtra"> · 5 rooms · only 3 flats for 8 left on Val Thorens Réservation</span></span></td>
+          <td class="r num">€7,777</td><td class="r num c-pass">€2,674<br><span class="small">Val Thorens–Orelle; 3 Vallées €3,064</span></td><td class="r num"><b>€10,451</b></td><td class="r num c-vs">+€4,267</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub-h">Where they are</h3>
+  <div id="rmap" role="region" aria-label="Map of the eight resorts and the nearest airports"></div>
+
+  <h3 class="sub-h">What stands out</h3>
+  <div class="notes">
+    <ul>
+      <li><b>How the totals work:</b> the cheapest single flat found for the week plus 6-day lift passes at 2026/27 prices for 4 adults and 4 kids, assuming all four kids get child rates. Transfers, ski hire, lessons and Tignes' family-pass discount aren't included.</li>
+      <li><b>Les 2 Alpes is cheapest overall,</b> mostly because its passes cost about €1,470 less than Tignes'. The glacier keeps the top reliable, but the village is lower (1,650 m), so the runs home are the weak spot in a lean December. The flat is a new Airbnb listing with one bathroom and no reviews yet. Buying the passes as a family pack saves another €160.</li>
+      <li><b>La Plagne is the closest like-for-like:</b> similar height, a bigger linked area and the same Geneva road as Tignes. The €2,819 flat sleeps 7; the cheapest that sleeps 8 is €3,869.</li>
+      <li><b>Cervinia</b> is high, with a glacier and cheaper passes. Strong wind can close the top lifts, and the drive from Geneva goes through the Mont Blanc tunnel.</li>
+      <li><b>Not worth it this week:</b> Val Thorens (only 3 flats for 8 left, from €7,777), Les Menuires (from €4,601) and La Rosière (nothing for 8 under €7,210).</li>
+      <li><b>6-day passes, adult / child:</b> Tignes–Val d'Isère €468 / €378 · Les 2 Alpes €266.50 / €213 · La Plagne €370 / €296 · Paradiski €412 / €330 · Cervinia €338 / €236.50 · Les Arcs €368 / €295 · Alpe d'Huez €336.50 / €264 · 3 Vallées €421 / €345 · Val Thorens–Orelle €367.50 / €301. Child age bands vary by resort (mostly up to 12; up to 17 in the 3 Vallées).</li>
+      <li>Drive times are rough and assume no traffic. Saturday traffic over Christmas can add hours.</li>
+    </ul>
+  </div>
+</section>
+
 <section aria-labelledby="live-h">
   <h2 id="live-h">Re-run the searches</h2>
-  <p class="lead">Each link opens a live search for 8 people, 26 Dec – 2 Jan.</p>
+  <p class="lead">Each link opens a live search for 26 Dec – 2 Jan for 8 people (7 and up on Ski-Planet, to catch 7-berth flats). On Les Arcs Réservation you'll need to enter the dates and group size yourself.</p>
+  <h3 class="sub-h">Tignes</h3>
   <div class="checks">
     <a class="btn" href="https://booking.tignes.net/booking?action=result&amp;reload=1&amp;redirectionUrl=0&amp;cid=1&amp;target=&amp;MOTEUR_TYPES_PRESTATAIRE=HEBERGEMENTS&amp;type_prestataire=G&amp;datedeb=26%2F12%2F2026&amp;datefin=02%2F01%2F2027&amp;duree=7&amp;adultes=4&amp;enfants=4" target="_blank" rel="noopener">Tignes Réservation ↗</a>
     <a class="btn" href="https://www.mountaincollection.com/en/holiday-rentals/tignes?id=zte_1545&amp;date_in=2026-12-26&amp;date_out=2027-01-02&amp;package_id=hebergement&amp;pax=4-12-12-12-12&amp;display=list" target="_blank" rel="noopener">Mountain Collection ↗</a>
@@ -316,10 +529,25 @@
     <a class="btn" href="https://www.booking.com/searchresults.en-gb.html?ss=Tignes&amp;checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1&amp;order=price" target="_blank" rel="noopener">Booking.com ↗</a>
     <a class="btn" href="https://www.airbnb.co.uk/s/Tignes--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.478&amp;ne_lng=6.925&amp;sw_lat=45.448&amp;sw_lng=6.890&amp;zoom=14" target="_blank" rel="noopener">Airbnb ↗</a>
   </div>
+  <h3 class="sub-h">Other resorts</h3>
+  <div class="checks">
+    <a class="btn" href="https://www.airbnb.co.uk/s/Les-Deux-Alpes--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.025&amp;ne_lng=6.140&amp;sw_lat=44.998&amp;sw_lng=6.108&amp;zoom=14" target="_blank" rel="noopener">Les 2 Alpes · Airbnb ↗</a>
+    <a class="btn" href="https://www.booking.com/searchresults.en-gb.html?ss=Les+Deux+Alpes%2C+France&amp;checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1&amp;order=price" target="_blank" rel="noopener">Les 2 Alpes · Booking.com ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=26&amp;Nbpers=7" target="_blank" rel="noopener">La Plagne · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.airbnb.co.uk/s/La-Plagne--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.53&amp;ne_lng=6.715&amp;sw_lat=45.495&amp;sw_lng=6.665&amp;zoom=14" target="_blank" rel="noopener">La Plagne · Airbnb ↗</a>
+    <a class="btn" href="https://www.airbnb.co.uk/s/Breuil-Cervinia--Italy/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.948&amp;ne_lng=7.648&amp;sw_lat=45.922&amp;sw_lng=7.612&amp;zoom=15" target="_blank" rel="noopener">Cervinia · Airbnb ↗</a>
+    <a class="btn" href="https://www.lesarcs-reservation.com/reservez-votre-sejour" target="_blank" rel="noopener">Les Arcs Réservation ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=33&amp;Nbpers=7" target="_blank" rel="noopener">Les Arcs · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.airbnb.co.uk/s/Alpe-d-Huez--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.100&amp;ne_lng=6.085&amp;sw_lat=45.082&amp;sw_lng=6.050&amp;zoom=15" target="_blank" rel="noopener">Alpe d'Huez · Airbnb ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=31&amp;Nbpers=7" target="_blank" rel="noopener">Alpe d'Huez &amp; Vaujany · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;stations=73&amp;Nbpers=7" target="_blank" rel="noopener">Les Menuires · Ski-Planet ↗</a>
+    <a class="btn" href="https://booking.valthorens.com/booking?redirectionUrl=0&amp;cid=2&amp;target=&amp;MOTEUR_TYPES_PRESTATAIRE=MOTEUR_HEBERGEMENT&amp;action=result&amp;type_prestataire=I&amp;type_date=SS&amp;datedeb=26%2F12%2F2026&amp;duree=7&amp;personnes=8" target="_blank" rel="noopener">Val Thorens Réservation ↗</a>
+  </div>
 </section>
 
 <footer>
   <p>Compiled 1 October 2026 from Tignes Réservation, Mountain Collection, Travelski, Ski-Planet, Interhome, Booking.com, Airbnb and Abritel. Map pins are approximate building locations.</p>
+  <p>Resort comparison: flats from Airbnb, Ski-Planet, Les Arcs Réservation, Val Thorens Réservation and Booking.com. Lift-pass prices are 2026/27 6-day rates from the resorts' own sites and <a href="https://www.schneehoehen.de/skigebiete/preise/tignes" target="_blank" rel="noopener">schneehoehen.de</a>. Resort pins are village centres.</p>
 </footer>
 
 </div>
@@ -409,6 +637,125 @@
       map.setView([f.lat, f.lng], 16, {animate: true});
       markers[n].openPopup();
     });
+  });
+})();
+</script>
+<script>
+/* Regional map of the other resorts */
+(function () {
+  var el = document.getElementById('rmap');
+  if (!el) return;
+  if (typeof L === 'undefined') {
+    el.innerHTML = '<p style="padding:16px;margin:0">The map could not load. The resorts are listed above.</p>';
+    return;
+  }
+  // dx/dy nudge a pin a few pixels off its village so neighbours don't hide each other when zoomed out
+  var resorts = [
+    {n:1, name:'Les 2 Alpes',  lat:45.0110, lng:6.1236, total:'€4,873',  flat:'€2,955',             pass:'€1,918', dx:6,   dy:6},
+    {n:2, name:'La Plagne',    lat:45.5070, lng:6.6780, total:'€5,483',  flat:'€2,819 (sleeps 7)', pass:'€2,664', dx:-8,  dy:0},
+    {n:3, name:'Cervinia',     lat:45.9340, lng:7.6300, total:'€5,597',  flat:'€3,299',             pass:'€2,298', dx:0,   dy:0},
+    {n:4, name:'Les Arcs',     lat:45.5860, lng:6.8780, total:'€5,824',  flat:'€3,172 (sleeps 7)', pass:'€2,652', dx:0,   dy:-9},
+    {n:5, name:'Tignes',       lat:45.4685, lng:6.9057, total:'€6,184',  flat:'€2,800',             pass:'€3,384', dx:5,   dy:7, home:true},
+    {n:6, name:"Alpe d'Huez",  lat:45.0915, lng:6.0700, total:'€6,767',  flat:'€4,365',             pass:'€2,402', dx:-8,  dy:-6},
+    {n:7, name:'Les Menuires', lat:45.3236, lng:6.5373, total:'€7,665',  flat:'€4,601',             pass:'€3,064', dx:-10, dy:0},
+    {n:8, name:'Val Thorens',  lat:45.2979, lng:6.5800, total:'€10,451', flat:'€7,777',             pass:'€2,674', dx:8,   dy:8}
+  ];
+  var airports = [
+    {name:'Geneva airport',   lat:46.2381, lng:6.1090, dir:'right'},
+    {name:'Grenoble airport', lat:45.3629, lng:5.3294, dir:'top'},
+    {name:'Turin airport',    lat:45.2008, lng:7.6497, dir:'bottom'}
+  ];
+
+  var rmap = L.map('rmap', {scrollWheelZoom: false});
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(rmap);
+
+  var pts = [];
+  resorts.forEach(function (r) {
+    var icon = L.divIcon({className: '', html: '<div class="pin pin--sm ' + (r.home ? 'pin--home' : 'pin--res') + '">' + r.n + '</div>',
+      iconSize: [24, 24], iconAnchor: [12 - r.dx, 12 - r.dy], popupAnchor: [r.dx, r.dy - 12]});
+    L.marker([r.lat, r.lng], {icon: icon, title: r.name, riseOnHover: true, zIndexOffset: r.home ? 500 : 0})
+      .addTo(rmap)
+      .bindPopup('<div class="pop"><b>' + r.n + '. ' + r.name + (r.home ? ' (this page)' : '') + '</b><br>' +
+        '<span class="pop-price">' + r.total + '</span> flat + passes for the week<br>Flat ' + r.flat + ' · passes ' + r.pass + '</div>');
+    pts.push([r.lat, r.lng]);
+  });
+  airports.forEach(function (a) {
+    var icon = L.divIcon({className: '', html: '<div class="apt" aria-hidden="true">&#9992;&#xFE0E;</div>',
+      iconSize: [22, 22], iconAnchor: [11, 11]});
+    L.marker([a.lat, a.lng], {icon: icon, title: a.name, zIndexOffset: -200, keyboard: false})
+      .addTo(rmap)
+      .bindTooltip(a.name, {permanent: true, direction: a.dir,
+        offset: a.dir === 'bottom' ? [0, 10] : a.dir === 'top' ? [0, -10] : [12, 0], className: 'apt-label'});
+    pts.push([a.lat, a.lng]);
+  });
+  rmap.fitBounds(pts, {padding: [30, 30]});
+  rmap.on('focus', function () { rmap.scrollWheelZoom.enable(); });
+  rmap.on('blur', function () { rmap.scrollWheelZoom.disable(); });
+})();
+
+/* Hover / focus readout for the cost chart */
+(function () {
+  var viz = document.querySelector('.viz');
+  if (!viz) return;
+  var tip = viz.querySelector('.tip');
+  var TIGNES = 6184;
+  function eur(n) { return '€' + Math.round(n).toLocaleString('en-GB'); }
+  function line(label, value, kind) {
+    var row = document.createElement('div');
+    row.className = 'tip-row' + (kind === 'total' ? ' tip-row--total' : '');
+    var l = document.createElement('span');
+    if (kind === 'flat' || kind === 'pass') {
+      var k = document.createElement('i');
+      k.className = 'k';
+      k.style.background = kind === 'flat' ? 'var(--series-1)' : 'var(--series-2)';
+      l.appendChild(k);
+    }
+    l.appendChild(document.createTextNode(label));
+    var v = document.createElement('span');
+    v.className = 'v';
+    v.textContent = value;
+    row.appendChild(l);
+    row.appendChild(v);
+    return row;
+  }
+  function fill(el) {
+    var f = Number(el.dataset.flat), p = Number(el.dataset.pass), t = f + p;
+    tip.textContent = '';
+    var name = document.createElement('span');
+    name.className = 'tip-name';
+    name.textContent = el.dataset.name + (el.dataset.sub ? ' · ' + el.dataset.sub : '');
+    tip.appendChild(name);
+    tip.appendChild(line('Flat for the week', eur(f), 'flat'));
+    tip.appendChild(line('Lift passes for 8', eur(p), 'pass'));
+    tip.appendChild(line('Total', eur(t), 'total'));
+    if (el.dataset.name !== 'Tignes') {
+      var d = t - TIGNES;
+      tip.appendChild(line('vs Tignes', (d < 0 ? '−' : '+') + eur(Math.abs(d)), 'delta'));
+    }
+  }
+  function place(x, y) {
+    var box = viz.getBoundingClientRect();
+    var w = tip.offsetWidth, h = tip.offsetHeight;
+    var left = Math.min(Math.max(x - box.left + 14, 8), box.width - w - 8);
+    var top = y - box.top - h - 12;
+    if (top < 4) top = y - box.top + 20;
+    tip.style.left = left + 'px';
+    tip.style.top = top + 'px';
+  }
+  viz.querySelectorAll('.crow').forEach(function (el) {
+    el.addEventListener('pointerenter', function (e) { fill(el); place(e.clientX, e.clientY); tip.classList.add('on'); });
+    el.addEventListener('pointermove', function (e) { place(e.clientX, e.clientY); });
+    el.addEventListener('pointerleave', function () { tip.classList.remove('on'); });
+    el.addEventListener('focus', function () {
+      fill(el);
+      var t = el.querySelector('.ctrack').getBoundingClientRect();
+      place(t.left + t.width * 0.35, t.top);
+      tip.classList.add('on');
+    });
+    el.addEventListener('blur', function () { tip.classList.remove('on'); });
   });
 })();
 </script>
