@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>La Plagne Christmas flats</title>
+<meta name="description" content="Single flats for our group of eight in La Plagne, free for Sat 26 Dec 2026 – Sat 2 Jan 2027 and within 300 m of a ski school meeting point, with prices, links and a map.">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --ink:#15202b; --muted:#5b6876; --line:#e1e5ea; --soft:#eef1f5;
+    --link:#1d4ed8; --btn:#15202b; --btn-ink:#ffffff;
+    --vc:#1d4ed8; --lac:#0f766e; --lav:#b45309; --prev:#6b7280;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1318; --card:#161d25; --ink:#e6ecf2; --muted:#9aa8b6; --line:#27313c; --soft:#1c252f;
+      --link:#8fb0ff; --btn:#e6ecf2; --btn-ink:#0e1318;
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+  a{color:var(--link)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+  .num{font-variant-numeric:tabular-nums}
+
+  /* Header */
+  header{padding:40px 0 8px}
+  .eyebrow{font-size:.85rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  h1{font-size:clamp(1.8rem,4.5vw,2.6rem);line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+  .sub{margin:0;color:var(--muted);max-width:60ch}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:22px 0 0}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px}
+  .stat b{display:block;font-size:1.25rem;line-height:1.2}
+  .stat span{font-size:.85rem;color:var(--muted)}
+
+  section{margin:34px 0}
+  h2{font-size:1.25rem;margin:0 0 12px}
+  .lead{margin:-4px 0 14px;color:var(--muted);font-size:.95rem}
+
+  /* Legend + chips */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:0 0 12px;font-size:.9rem;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block}
+  .dot--vc{background:var(--vc)} .dot--lac{background:var(--lac)} .dot--lav{background:var(--lav)} .dot--prev{background:var(--prev)}
+  .chip{display:inline-block;font-size:.78rem;font-weight:600;padding:2px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+  .chip--vc{background:var(--vc)} .chip--lac{background:var(--lac)} .chip--lav{background:var(--lav)}
+
+  /* Map */
+  #map{height:min(62vh,520px);min-height:320px;border-radius:var(--radius);border:1px solid var(--line);background:var(--soft)}
+  .pin{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;
+    font:700 14px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:2px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)}
+  .pin--vc{background:#1d4ed8} .pin--lac{background:#0f766e} .pin--lav{background:#b45309}
+  .pin--prev{background:#6b7280;width:24px;height:24px;font-size:12px}
+  .leaflet-popup-content{margin:12px 14px;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .pop b{font-size:15px}
+  .pop .pop-price{font-weight:700}
+  .pop a{display:inline-block;margin-top:4px}
+
+  /* Comparison table */
+  .table-wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+  table{border-collapse:collapse;width:100%;min-width:620px;font-size:.95rem}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+  tr:last-child td{border-bottom:0}
+  td.r,th.r{text-align:right}
+  td .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;color:#fff;font-weight:700;font-size:.8rem}
+  @media (max-width:600px){
+    table{min-width:0}
+    th,td{padding:9px 8px}
+    .c-area,.c-size,.c-lifts{display:none}
+  }
+
+  /* Cards */
+  .cards{display:grid;grid-template-columns:1fr;gap:16px}
+  @media (min-width:820px){.cards{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:flex;flex-direction:column;gap:12px;scroll-margin-top:16px}
+  .card.is-active{outline:3px solid var(--link);outline-offset:2px}
+  .card-head{display:flex;gap:12px;align-items:flex-start}
+  .card-head .pin{flex:0 0 auto;box-shadow:none;border:0}
+  .card-head h3{margin:0;font-size:1.15rem;line-height:1.25}
+  .card-head .where{margin-top:4px}
+  .price{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+  .price strong{font-size:1.6rem;line-height:1}
+  .price span{color:var(--muted);font-size:.9rem}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{font-size:.78rem;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+  .tag--hi{background:#fef3c7;color:#78350f;border-color:#fde68a}
+  @media (prefers-color-scheme: dark){.tag--hi{background:#3a2a06;color:#fcd34d;border-color:#5b430c}}
+  dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:.93rem}
+  dt{color:var(--muted)}
+  dd{margin:0}
+  .also{font-size:.88rem;color:var(--muted);margin:0}
+  .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto}
+  .btn{display:inline-flex;align-items:center;gap:6px;font-size:.9rem;font-weight:600;text-decoration:none;
+    padding:8px 13px;border-radius:10px;border:1px solid var(--line);color:var(--ink);background:var(--card);cursor:pointer;font-family:inherit}
+  .btn--primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:focus-visible,a:focus-visible{outline:3px solid var(--link);outline-offset:2px}
+
+  /* Notes */
+  .notes{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:6px 18px}
+  .notes ul{margin:12px 0;padding-left:20px}
+  .notes li{margin:8px 0}
+  .checks{display:flex;flex-wrap:wrap;gap:8px}
+  footer{color:var(--muted);font-size:.85rem;padding:10px 0 40px;border-top:1px solid var(--line);margin-top:40px}
+  footer p{margin:10px 0}
+
+  /* Other resorts */
+  .jump{margin:16px 0 0;font-size:.95rem}
+  .jump a{font-weight:600}
+  .badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;
+    background:#334155;color:#fff;font-weight:700;font-size:.75rem;margin-right:8px;vertical-align:1px}
+  .badge--home{background:#1d4ed8}
+  .small{font-size:.84rem;color:var(--muted)}
+  table.cmp2{min-width:860px}
+  table.cmp2 td{vertical-align:top}
+  table.cmp2 td.num{white-space:nowrap}
+  table.cmp2 td.num .small{display:block;white-space:normal}
+  table.cmp2 tr.is-home td{background:var(--soft)}
+  h3.sub-h{font-size:1.02rem;margin:22px 0 10px}
+  @media (min-width:601px){table.cmp2 td:first-child{white-space:nowrap}}
+  @media (max-width:600px){
+    table.cmp2{min-width:0}
+    .c-snow,.c-gva,.c-pass,.c-vs,.xtra{display:none}
+  }
+
+  /* Cost chart: flat + passes, stacked */
+  .viz{--series-1:#2a78d6;--series-2:#eb6834;--grid:#e8ebef;--lab:9.5rem;--tot:4.6rem;--gap:12px;
+    position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 14px 12px}
+  @media (prefers-color-scheme: dark){.viz{--series-1:#3987e5;--series-2:#d95926;--grid:#222b35}}
+  @media (max-width:600px){.viz{--lab:6.4rem;--tot:4.1rem;--gap:8px;padding:14px 8px 10px}}
+  .viz-key{display:flex;flex-wrap:wrap;gap:6px 18px;margin:0 0 6px 6px;font-size:.86rem;color:var(--muted)}
+  .viz-key span{display:inline-flex;align-items:center;gap:7px}
+  .sw{display:inline-block;width:14px;height:10px;border-radius:2px}
+  .sw--flat{background:var(--series-1)} .sw--pass{background:var(--series-2)}
+  .sw--ref{width:0;height:14px;border-left:1px solid var(--ink);border-radius:0}
+  .bars{position:relative;padding-top:24px}
+  .bars-grid{position:absolute;top:0;bottom:0;left:calc(var(--lab) + var(--gap));right:calc(var(--tot) + var(--gap));
+    pointer-events:none;border-left:1px solid var(--grid);
+    background:linear-gradient(to right,var(--grid) 1px,transparent 1px) 0 0/calc(100% / 6) 100% repeat-x}
+  .ref{position:absolute;top:0;bottom:0;border-left:1px solid var(--ink)}
+  .ref span{position:absolute;top:2px;left:5px;font-size:.75rem;font-weight:600;color:var(--ink);white-space:nowrap}
+  .crow{position:relative;display:grid;grid-template-columns:var(--lab) 1fr var(--tot);column-gap:var(--gap);
+    align-items:center;min-height:36px;border-radius:8px;outline:none}
+  .crow:hover,.crow:focus-visible{background:var(--soft)}
+  .crow:focus-visible{box-shadow:0 0 0 3px var(--link)}
+  .clab{font-size:.9rem;line-height:1.2;padding-left:6px}
+  .clab small{display:block;color:var(--muted);font-size:.74rem}
+  .crow.is-home .clab{font-weight:700}
+  .ctrack{display:flex;gap:2px;height:18px}
+  .seg{display:block;height:100%}
+  .seg--flat{background:var(--series-1)}
+  .seg--pass{background:var(--series-2);border-radius:0 4px 4px 0}
+  .ctot{font-size:.9rem;font-weight:700;text-align:right;padding-right:6px;font-variant-numeric:tabular-nums}
+  .caxis{display:grid;grid-template-columns:var(--lab) 1fr var(--tot);column-gap:var(--gap);margin-top:4px}
+  .ticks{position:relative;height:18px;font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums}
+  .ticks span{position:absolute;top:0;transform:translateX(-50%)}
+  .ticks span:first-child{transform:none}
+  .ticks span:last-child{transform:translateX(-100%)}
+  @media (max-width:600px){.ticks span:nth-child(even){display:none}}
+  .tip{position:absolute;z-index:5;pointer-events:none;min-width:180px;padding:9px 11px;font-size:.85rem;
+    background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.16);
+    opacity:0;transition:opacity .12s}
+  .tip.on{opacity:1}
+  .tip-name{display:block;font-weight:600;margin-bottom:5px}
+  .tip-row{display:flex;justify-content:space-between;align-items:center;gap:14px;color:var(--muted)}
+  .tip-row .v{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .tip-row .k{display:inline-block;width:12px;height:2px;margin-right:7px;vertical-align:middle}
+  .tip-row--total{border-top:1px solid var(--line);margin-top:5px;padding-top:5px}
+
+  /* Regional map */
+  #rmap{height:min(58vh,460px);min-height:300px;border-radius:var(--radius);border:1px solid var(--line);background:var(--soft)}
+  @media (max-width:600px){#rmap{height:340px}}
+  .pin--res{background:#334155} .pin--home{background:#1d4ed8}
+  .pin--sm{width:24px;height:24px;font-size:12px}
+  .apt{width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:#6b7280;color:#fff;
+    font:700 11px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+  .leaflet-tooltip.apt-label{background:rgba(255,255,255,.92);color:#15202b;border:0;box-shadow:none;padding:1px 6px;
+    font:600 12px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .leaflet-tooltip.apt-label::before{display:none}
+
+  /* La Plagne zones */
+  :root{--ce:#1d4ed8;--vi:#0f766e;--so:#b45309;--p18:#6d28d9;--bp:#be185d}
+  .dot--ce,.chip--ce,.pin--ce{background:#1d4ed8}.dot--vi,.chip--vi,.pin--vi{background:#0f766e}
+  .dot--so,.chip--so,.pin--so{background:#b45309}.dot--p18,.chip--p18,.pin--p18{background:#6d28d9}
+  .dot--bp,.chip--bp,.pin--bp{background:#be185d}
+  .sk{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;background:#111827;color:#fff;
+    font:700 10px/1 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .sk--pp{background:#4b5563}
+  .dot--sk{background:#111827;border-radius:3px}.dot--pp{background:#4b5563;border-radius:3px}
+  @media (prefers-color-scheme: dark){.dot--sk{background:#e5e7eb}.dot--pp{background:#9ca3af}}
+  @media (max-width:600px){.c-vil,.c-size{display:none} td.r{white-space:nowrap} th,td{padding:9px 6px}}
+  .toplink{margin:0 0 6px;font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="toplink"><a href="./">← Tignes flats and the resort comparison</a></p>
+  <p class="eyebrow">La Plagne · Christmas 2026</p>
+  <h1>La Plagne, a short walk from ski school</h1>
+  <p class="sub">Sat 26 Dec 2026 → Sat 2 Jan 2027 (7 nights) · 4 adults + 4 kids. Eight single flats that were still free for the week, each within about 300 m of an ESF lesson meeting point, cheapest first. Most sleep 7, three sleep 8.</p>
+  <div class="stats">
+    <div class="stat"><b class="num">8 flats</b><span>free and within 300 m of ski school</span></div>
+    <div class="stat"><b class="num">€2,819–€5,525</b><span>total for the week</span></div>
+    <div class="stat"><b class="num">€2,664</b><span>6-day La Plagne passes for all 8</span></div>
+    <div class="stat"><b>2 Oct 2026</b><span>when availability was checked</span></div>
+  </div>
+</header>
+
+<section aria-labelledby="map-h">
+  <h2 id="map-h">Where they are</h2>
+  <div class="legend" aria-hidden="true">
+    <span><i class="dot dot--ce"></i>Plagne Centre</span>
+    <span><i class="dot dot--vi"></i>Plagne Villages</span>
+    <span><i class="dot dot--so"></i>Plagne Soleil</span>
+    <span><i class="dot dot--p18"></i>Plagne 1800</span>
+    <span><i class="dot dot--bp"></i>Belle Plagne</span>
+    <span><i class="dot dot--sk"></i>ESF lesson meeting point</span>
+    <span><i class="dot dot--pp"></i>Piou Piou club (youngest kids)</span>
+  </div>
+  <div id="map" role="region" aria-label="Map of the eight flats and the ski school meeting points in La Plagne"></div>
+</section>
+
+<section aria-labelledby="cmp-h">
+  <h2 id="cmp-h">At a glance</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>#</th><th>Flat</th><th class="c-vil">Village</th><th class="r">Week</th><th class="r">Sleeps</th><th class="r c-size">Size</th><th class="r">Ski school</th></tr>
+      </thead>
+      <tbody>
+<tr><td><span class="n" style="background:var(--p18)">1</span></td><td><a href="#plagne-lauze">Plagne Lauze, 55 m² duplex</a></td><td class="c-vil">Plagne 1800</td><td class="r num"><b>€2,819</b></td><td class="r num">7</td><td class="r num c-size">55 m²</td><td class="r num">290 m</td></tr>
+<tr><td><span class="n" style="background:var(--ce)">2</span></td><td><a href="#le-france-55">Le France, 55 m² duplex</a></td><td class="c-vil">Plagne Centre</td><td class="r num"><b>€2,869</b></td><td class="r num">7</td><td class="r num c-size">55 m²</td><td class="r num">240 m</td></tr>
+<tr><td><span class="n" style="background:var(--vi)">3</span></td><td><a href="#aspen">Résidence Aspen, 58 m²</a></td><td class="c-vil">Plagne Villages</td><td class="r num"><b>€2,999</b></td><td class="r num">6–7</td><td class="r num c-size">58 m²</td><td class="r num">200 m</td></tr>
+<tr><td><span class="n" style="background:var(--ce)">4</span></td><td><a href="#nanda-devi">Nanda Devi, 48 m²</a></td><td class="c-vil">Plagne Centre</td><td class="r num"><b>€3,549</b></td><td class="r num">7</td><td class="r num c-size">48 m²</td><td class="r num">55 m</td></tr>
+<tr><td><span class="n" style="background:var(--vi)">5</span></td><td><a href="#soldanelles">Les Soldanelles, 58 m²</a></td><td class="c-vil">Plagne Villages</td><td class="r num"><b>€3,869</b></td><td class="r num">8</td><td class="r num c-size">58 m²</td><td class="r num">160 m</td></tr>
+<tr><td><span class="n" style="background:var(--p18)">6</span></td><td><a href="#edelweiss">Les Chalets d&#x27;Edelweiss, duplex</a></td><td class="c-vil">Plagne 1800</td><td class="r num"><b>€3,977</b></td><td class="r num">6–8</td><td class="r num c-size">51 m²</td><td class="r num">50 m</td></tr>
+<tr><td><span class="n" style="background:var(--so)">7</span></td><td><a href="#lodges-alpages">Les Lodges des Alpages, 3 rooms</a></td><td class="c-vil">Plagne Soleil</td><td class="r num"><b>€4,229</b></td><td class="r num">8</td><td class="r num c-size">46–55 m²</td><td class="r num">50 m</td></tr>
+<tr><td><span class="n" style="background:var(--bp)">8</span></td><td><a href="#belle-plagne">Belle Plagne apartment, 72 m²</a></td><td class="c-vil">Belle Plagne</td><td class="r num"><b>€5,525</b></td><td class="r num">8</td><td class="r num c-size">72 m²</td><td class="r num"><300 m</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="flats-h">
+  <h2 id="flats-h">The flats</h2>
+  <p class="lead">Prices are the total for the week. Distances are straight lines from the building to the nearest ESF group-lesson meeting point, measured from the map pins.</p>
+  <div class="cards">
+
+    <article class="card" id="plagne-lauze">
+      <div class="card-head">
+        <div class="pin pin--p18" aria-hidden="true">1</div>
+        <div><h3>Plagne Lauze, 55 m² duplex</h3><div class="where"><span class="chip chip--p18">Plagne 1800</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€2,819</strong><span>via Ski-Planet</span></div>
+      <div class="tags"><span class="tag tag--hi">Cheapest</span><span class="tag">Sleeps 7</span><span class="tag">Covered parking</span></div>
+      <dl><dt>Size</dt><dd>55 m² duplex, 4th floor, 2 bedrooms plus a cabin area</dd><dt>Beds</dt><dd>Double bedroom · second bedroom and cabin · sofa bed for 2 in the living room</dd><dt>Bathroom</dt><dd>2 bathrooms and a separate WC</dd><dt>Ski school</dt><dd>About 290 m to the ESF Plagne 1800 meeting point and Piou Piou club</dd><dt>Other</dt><dd>South-facing balcony · listed as 100–500 m from the slopes, so the furthest walk of the lot</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/3-room-apartment-7-people-prestige-55m2,plagne-1800_62134.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="1">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="le-france-55">
+      <div class="card-head">
+        <div class="pin pin--ce" aria-hidden="true">2</div>
+        <div><h3>Le France, 55 m² duplex</h3><div class="where"><span class="chip chip--ce">Plagne Centre</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€2,869</strong><span>via Ski-Planet</span></div>
+      <div class="tags"><span class="tag tag--hi">Best value in Plagne Centre</span><span class="tag">Sleeps 7, beds for 8</span><span class="tag">At the foot of the slopes</span></div>
+      <dl><dt>Size</dt><dd>55 m² duplex, 1st floor with lift</dd><dt>Beds</dt><dd>Twin bedroom (2 singles) · open mezzanine with a double · two pull-out beds in the living room. The listing provides 8 single duvets and 1 double</dd><dt>Bathroom</dt><dd>1 shower room with WC</dd><dt>Ski school</dt><dd>About 240 m to the ESF group meeting point, 120 m to the Piou Piou club and 180 m to the ESF office</dd><dt>Other</dt><dd>South balcony over the slopes · washing machine, dishwasher · linked to the shops by an indoor gallery</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/3-room-apartment-7-people-55m2-1,plagne-centre_66752.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="2">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="aspen">
+      <div class="card-head">
+        <div class="pin pin--vi" aria-hidden="true">3</div>
+        <div><h3>Résidence Aspen, 58 m²</h3><div class="where"><span class="chip chip--vi">Plagne Villages</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€2,999</strong><span>via Travelski</span></div>
+      <div class="tags"><span class="tag">Sleeps 6–7</span><span class="tag">4★ residence</span></div>
+      <dl><dt>Size</dt><dd>58 m², 3 rooms, 2 bedrooms</dd><dt>Beds</dt><dd>Listed as 3 rooms for 6/7 people; check the bed layout on the listing</dd><dt>Bathroom</dt><dd>Not stated in the search result</dd><dt>Ski school</dt><dd>About 200 m to the Piou Piou club and 240 m to the ESF Plagne Villages meeting point</dd><dt>Other</dt><dd>Price is from the Travelski search for accommodation only. The residence page defaults to a package with passes and ski hire, so pick 26 Dec and accommodation only</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.travelski.com/residence/location/residence-hedena-aspen-51112" target="_blank" rel="noopener">Travelski ↗</a>
+        <button class="btn" type="button" data-show="3">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="nanda-devi">
+      <div class="card-head">
+        <div class="pin pin--ce" aria-hidden="true">4</div>
+        <div><h3>Nanda Devi, 48 m²</h3><div class="where"><span class="chip chip--ce">Plagne Centre</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€3,549</strong><span>via Ski-Planet</span></div>
+      <div class="tags"><span class="tag tag--hi">Closest to ski school</span><span class="tag">Sleeps 7</span><span class="tag">On the snow front</span></div>
+      <dl><dt>Size</dt><dd>About 48 m², 3rd floor, <b>no lift</b>, 1 bedroom plus a divisible living area</dd><dt>Beds</dt><dd>Double bedroom (160 cm) · two pull-out beds in the divisible part · two pull-out beds and a single in the living room</dd><dt>Bathroom</dt><dd>Bathroom with bath, shower room in the bedroom, separate WC</dd><dt>Ski school</dt><dd>About 55 m to the ESF Nanda Devi meeting point and 150 m to the main group meeting point</dd><dt>Other</dt><dd>South balcony over the snow front · dishwasher</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/2-room-apartment-7-people-48m2-3,plagne-centre_64683.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="4">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="soldanelles">
+      <div class="card-head">
+        <div class="pin pin--vi" aria-hidden="true">5</div>
+        <div><h3>Les Soldanelles, 58 m²</h3><div class="where"><span class="chip chip--vi">Plagne Villages</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€3,869</strong><span>via Ski-Planet</span></div>
+      <div class="tags"><span class="tag tag--hi">Cheapest that sleeps 8</span><span class="tag">Sleeps 8</span><span class="tag">At the foot of the slopes</span></div>
+      <dl><dt>Size</dt><dd>About 58 m², 1st floor, 2 bedrooms</dd><dt>Beds</dt><dd>Double bedroom · bunk room with two bunks (4) · two single sofa beds in the living room</dd><dt>Bathroom</dt><dd>Bathroom with bath, shower room with WC, separate WC</dd><dt>Ski school</dt><dd>About 160 m to the ESF Plagne Villages meeting point and 90 m to the Piou Piou club</dd><dt>Other</dt><dd>Balcony over the piste · dishwasher · shops 50 m away</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/3-room-apartment-8-people-58m2-1,plagne-villages_61437.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="5">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="edelweiss">
+      <div class="card-head">
+        <div class="pin pin--p18" aria-hidden="true">6</div>
+        <div><h3>Les Chalets d&#x27;Edelweiss, duplex</h3><div class="where"><span class="chip chip--p18">Plagne 1800</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€3,977</strong><span>via Ski-Planet</span></div>
+      <div class="tags"><span class="tag">Sleeps 6–8</span><span class="tag">Indoor pool</span><span class="tag">Linen included</span></div>
+      <dl><dt>Size</dt><dd>About 51 m² duplex in a 4★ Lagrange residence</dd><dt>Beds</dt><dd>Double bedroom · twin bedroom · sleeping corner with bunks · sofa bed in the living room</dd><dt>Bathroom</dt><dd>Bathroom with WC plus a shower room</dd><dt>Ski school</dt><dd>About 50 m to the ESF Plagne 1800 meeting point</dd><dt>Other</dt><dd>30 m from the slopes · heated indoor pool · bed linen included</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/3-room-duplex-apartment-sleeping-corner-6-8-people,plagne-1800_3452.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="6">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="lodges-alpages">
+      <div class="card-head">
+        <div class="pin pin--so" aria-hidden="true">7</div>
+        <div><h3>Les Lodges des Alpages, 3 rooms</h3><div class="where"><span class="chip chip--so">Plagne Soleil</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€4,229</strong><span>via Ski-Planet (10% off)</span></div>
+      <div class="tags"><span class="tag">Sleeps 8</span><span class="tag">Ski-in/ski-out</span></div>
+      <dl><dt>Size</dt><dd>46–55 m², some are duplexes</dd><dt>Beds</dt><dd>Two bedrooms (double or twin) · cabin with bunks · sofa bed in the living room</dd><dt>Bathroom</dt><dd>1 bathroom with WC</dd><dt>Ski school</dt><dd>About 50 m to the ESF Plagne Soleil meeting point and 80 m to the Piou Piou club</dd><dt>Other</dt><dd>Right on the slopes at 2,050 m · balcony · dishwasher · guest rating 6.7/10</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.ski-planet.com/en/3-room-apartment-8-people-bct,plagne-soleil_145.html" target="_blank" rel="noopener">Ski-Planet ↗</a>
+        <button class="btn" type="button" data-show="7">Show on map</button>
+      </div>
+    </article>
+
+    <article class="card" id="belle-plagne">
+      <div class="card-head">
+        <div class="pin pin--bp" aria-hidden="true">8</div>
+        <div><h3>Belle Plagne apartment, 72 m²</h3><div class="where"><span class="chip chip--bp">Belle Plagne</span></div></div>
+      </div>
+      <div class="price"><strong class="num">€5,525</strong><span>via Booking.com</span></div>
+      <div class="tags"><span class="tag tag--hi">Most space</span><span class="tag">Sleeps 8</span><span class="tag">3 bathrooms</span></div>
+      <dl><dt>Size</dt><dd>72 m², 3 bedrooms</dd><dt>Beds</dt><dd>3 bedrooms; see the listing for the bed layout</dd><dt>Bathroom</dt><dd>3 bathrooms</dd><dt>Ski school</dt><dd>Belle Plagne is compact: the ESF meeting points and both Piou Piou clubs are all within about 300 m of the village centre</dd><dt>Other</dt><dd>The only single flat for 8 left in Belle Plagne. The map pin is the village centre, not the building</dd></dl>
+      <div class="links">
+        <a class="btn btn--primary" href="https://www.booking.com/hotel/fr/appartement-confortable-8-pers-belle-plagne-fr-1-885-49.en-gb.html?checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1" target="_blank" rel="noopener">Booking.com ↗</a>
+        <button class="btn" type="button" data-show="8">Show on map</button>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section aria-labelledby="notes-h">
+  <h2 id="notes-h">Good to know</h2>
+  <div class="notes">
+    <ul>
+      <li><b>Sleeping 8:</b> only Les Soldanelles, Les Lodges des Alpages and the Belle Plagne flat are sold for 8. Le France has beds for 8 but is sold for 7, and Edelweiss is sold for 6–8. The rest sleep 7, so one of us is on a squeeze.</li>
+      <li><b>Just outside 300 m:</b> Squaw Valley in Plagne Villages (63 m² duplex, sleeps 8, 3 bathrooms, €3,869 on Ski-Planet) is about 360 m from the Plagne Villages meeting point.</li>
+      <li><b>Also free and within 300 m,</b> all in Plagne Centre or Plagne Villages on Ski-Planet: Cerro Torre 45 m², sleeps 7, €3,149 (no lift) · Le France 42 m², sleeps 7, €3,549 · Le France 54 m² with 3 bedrooms, sleeps 7, €3,929 · Le Pelvoux, sleeps 5–7, €4,199 · La Cordillère 68 m², sleeps 7, €4,669 · Les Aollets 68 m², sleeps 7, €4,669 · Mont Soleil 53 m², sleeps 7, €4,809.</li>
+      <li><b>Which ski school:</b> the meeting points on the map are ESF's. Each village has its own group-lesson meeting point and a Piou Piou club for the youngest. Oxygène also meets on the Plagne Centre snow front. Check which meeting point your lesson uses when you book.</li>
+      <li><b>The villages:</b> Plagne Centre is the hub with the most shops and lifts. Plagne Villages and Plagne Soleil sit just above it at 2,050 m and are quieter and ski-in/ski-out. Plagne 1800 is lower and chalet-style. Belle Plagne is the prettiest and highest, and the dearest.</li>
+      <li><b>Extra costs:</b> on most Ski-Planet flats, bed linen, towels and end-of-stay cleaning are optional extras. Ski-Planet charges 30% to cancel more than 30 days out and 100% after that.</li>
+      <li><b>Lift passes:</b> a 6-day La Plagne pass is €370 per adult and €296 per child (up to 12), so €2,664 for all 8. Adding Les Arcs (Paradiski) makes it €2,968.</li>
+      <li>Prices and availability change daily, so check the listing before booking.</li>
+    </ul>
+  </div>
+</section>
+
+<section aria-labelledby="live-h">
+  <h2 id="live-h">Re-run the searches</h2>
+  <p class="lead">Each link opens a live search for 26 Dec – 2 Jan. The Ski-Planet links show flats for 7 or more in one village.</p>
+  <div class="checks">
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;Nbpers=7&amp;stations=s26" target="_blank" rel="noopener">Plagne Centre · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;Nbpers=7&amp;stations=s247" target="_blank" rel="noopener">Plagne Villages · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;Nbpers=7&amp;stations=s136" target="_blank" rel="noopener">Plagne Soleil · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.ski-planet.com/en/reservation/online_affiche.php?DteFrom=2026-12-26&amp;NbNuits=7&amp;Nbpers=7&amp;stations=s135" target="_blank" rel="noopener">Plagne 1800 · Ski-Planet ↗</a>
+    <a class="btn" href="https://www.travelski.com/stations/la-plagne.html#e=1&amp;beginDate=2026-12-26&amp;endDate=2027-01-02&amp;capacity=7" target="_blank" rel="noopener">Travelski ↗</a>
+    <a class="btn" href="https://www.airbnb.co.uk/s/La-Plagne--France/homes?checkin=2026-12-26&amp;checkout=2027-01-02&amp;adults=4&amp;children=4&amp;search_by_map=true&amp;ne_lat=45.524&amp;ne_lng=6.716&amp;sw_lat=45.497&amp;sw_lng=6.660&amp;zoom=14" target="_blank" rel="noopener">Airbnb ↗</a>
+    <a class="btn" href="https://www.booking.com/searchresults.en-gb.html?ss=Belle+Plagne%2C+France&amp;checkin=2026-12-26&amp;checkout=2027-01-02&amp;group_adults=4&amp;group_children=4&amp;age=10&amp;age=10&amp;age=10&amp;age=10&amp;no_rooms=1&amp;order=price" target="_blank" rel="noopener">Belle Plagne · Booking.com ↗</a>
+    <a class="btn" href="https://www.ski-school-laplagne.co.uk/meeting-points/" target="_blank" rel="noopener">ESF meeting points ↗</a>
+  </div>
+</section>
+
+<footer>
+  <p>Compiled 2 October 2026 from Ski-Planet, Travelski, Airbnb and Booking.com. Ski school meeting points are from the ESF La Plagne and ESF Belle Plagne maps. Building pins come from the listings and are approximate.</p>
+</footer>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+(function () {
+  var flats = [{"n": 1, "id": "plagne-lauze", "name": "Plagne Lauze, 55 m² duplex", "area": "Plagne 1800", "zone": "p18", "lat": 45.513408, "lng": 6.677761, "price": "€2,819", "sleeps": "Sleeps 7, 55 m²", "dist": "290 m", "url": "https://www.ski-planet.com/en/3-room-apartment-7-people-prestige-55m2,plagne-1800_62134.html", "site": "Ski-Planet"}, {"n": 2, "id": "le-france-55", "name": "Le France, 55 m² duplex", "area": "Plagne Centre", "zone": "ce", "lat": 45.505566, "lng": 6.678771, "price": "€2,869", "sleeps": "Sleeps 7, 55 m²", "dist": "240 m", "url": "https://www.ski-planet.com/en/3-room-apartment-7-people-55m2-1,plagne-centre_66752.html", "site": "Ski-Planet"}, {"n": 3, "id": "aspen", "name": "Résidence Aspen, 58 m²", "area": "Plagne Villages", "zone": "vi", "lat": 45.50727, "lng": 6.68216, "price": "€2,999", "sleeps": "Sleeps 6–7, 58 m²", "dist": "200 m", "url": "https://www.travelski.com/residence/location/residence-hedena-aspen-51112", "site": "Travelski"}, {"n": 4, "id": "nanda-devi", "name": "Nanda Devi, 48 m²", "area": "Plagne Centre", "zone": "ce", "lat": 45.505182, "lng": 6.674156, "price": "€3,549", "sleeps": "Sleeps 7, 48 m²", "dist": "55 m", "url": "https://www.ski-planet.com/en/2-room-apartment-7-people-48m2-3,plagne-centre_64683.html", "site": "Ski-Planet"}, {"n": 5, "id": "soldanelles", "name": "Les Soldanelles, 58 m²", "area": "Plagne Villages", "zone": "vi", "lat": 45.506297, "lng": 6.682339, "price": "€3,869", "sleeps": "Sleeps 8, 58 m²", "dist": "160 m", "url": "https://www.ski-planet.com/en/3-room-apartment-8-people-58m2-1,plagne-villages_61437.html", "site": "Ski-Planet"}, {"n": 6, "id": "edelweiss", "name": "Les Chalets d'Edelweiss, duplex", "area": "Plagne 1800", "zone": "p18", "lat": 45.510437, "lng": 6.677177, "price": "€3,977", "sleeps": "Sleeps 6–8, 51 m²", "dist": "50 m", "url": "https://www.ski-planet.com/en/3-room-duplex-apartment-sleeping-corner-6-8-people,plagne-1800_3452.html", "site": "Ski-Planet"}, {"n": 7, "id": "lodges-alpages", "name": "Les Lodges des Alpages, 3 rooms", "area": "Plagne Soleil", "zone": "so", "lat": 45.50867, "lng": 6.68606, "price": "€4,229", "sleeps": "Sleeps 8, 46–55 m²", "dist": "50 m", "url": "https://www.ski-planet.com/en/3-room-apartment-8-people-bct,plagne-soleil_145.html", "site": "Ski-Planet"}, {"n": 8, "id": "belle-plagne", "name": "Belle Plagne apartment, 72 m²", "area": "Belle Plagne", "zone": "bp", "lat": 45.5074, "lng": 6.7078, "price": "€5,525", "sleeps": "Sleeps 8, 72 m²", "dist": "<300 m", "url": "https://www.booking.com/hotel/fr/appartement-confortable-8-pers-belle-plagne-fr-1-885-49.en-gb.html?checkin=2026-12-26&checkout=2027-01-02&group_adults=4&group_children=4&age=10&age=10&age=10&age=10&no_rooms=1", "site": "Booking.com"}];
+  var schools = [["ESF group lessons, Plagne Centre", 45.50473, 6.67593, "sk"], ["ESF meeting point, Nanda Devi", 45.50502, 6.67484, "sk"], ["Piou Piou club, Plagne Centre", 45.50615, 6.6775, "pp"], ["ESF group lessons, Plagne Villages", 45.50567, 6.68415, "sk"], ["Piou Piou club, Plagne Villages", 45.50549, 6.68228, "pp"], ["ESF group lessons, Plagne Soleil", 45.50824, 6.68603, "sk"], ["Piou Piou club, Plagne Soleil", 45.50799, 6.68644, "pp"], ["ESF group lessons, Plagne 1800", 45.51086, 6.67703, "sk"], ["Piou Piou club, Plagne 1800", 45.51092, 6.67683, "pp"], ["ESF group lessons, Belle Plagne", 45.50752, 6.70778, "sk"], ["Lower Piou Piou club, Belle Plagne", 45.50542, 6.70827, "pp"]];
+  var mapEl = document.getElementById('map');
+  if (typeof L === 'undefined') {
+    mapEl.innerHTML = '<p style="padding:16px;margin:0">The map could not load. The flats are listed below.</p>';
+    return;
+  }
+  var map = L.map('map', {scrollWheelZoom: false});
+  var streets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    maxZoom: 17, attribution: 'Map data &copy; OpenStreetMap contributors, SRTM | Style &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (CC-BY-SA)'
+  });
+  var pistes = L.tileLayer('https://tiles.opensnowmap.org/pistes/{z}/{x}/{y}.png', {
+    maxZoom: 18, attribution: 'Pistes &copy; <a href="https://www.opensnowmap.org">OpenSnowMap</a> (CC-BY-SA)'
+  }).addTo(map);
+  L.control.layers({'Streets': streets, 'Topographic': topo}, {'Pistes and lifts': pistes}, {collapsed: true}).addTo(map);
+
+  schools.forEach(function (s) {
+    var pp = s[3] === 'pp';
+    var icon = L.divIcon({className: '', html: '<div class="sk' + (pp ? ' sk--pp' : '') + '">' + (pp ? 'PP' : 'ESF') + '</div>', iconSize: [22, 22], iconAnchor: [11, 11], popupAnchor: [0, -11]});
+    L.marker([s[1], s[2]], {icon: icon, title: s[0], zIndexOffset: -100}).addTo(map).bindPopup('<div class="pop"><b>' + s[0] + '</b></div>');
+  });
+
+  var markers = {}, bounds = [];
+  flats.forEach(function (f) {
+    var icon = L.divIcon({className: '', html: '<div class="pin pin--' + f.zone + '">' + f.n + '</div>', iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -15]});
+    var html = '<div class="pop"><b>' + f.n + '. ' + f.name + '</b><br>' + f.area + ' · ' + f.dist.replace('<', 'under ') + ' to ski school' +
+      '<br><span class="pop-price">' + f.price + '</span> for the week · ' + f.sleeps +
+      '<br><a href="#' + f.id + '">Details below</a> · <a href="' + f.url + '" target="_blank" rel="noopener">' + f.site + ' ↗</a></div>';
+    var m = L.marker([f.lat, f.lng], {icon: icon, title: f.name, riseOnHover: true}).addTo(map).bindPopup(html);
+    m.on('popupopen', function () { highlight(f.id); });
+    markers[f.n] = m;
+    if (!(window.innerWidth < 600 && f.zone === 'bp')) bounds.push([f.lat, f.lng]);
+  });
+  map.fitBounds(bounds, {padding: [40, 40], maxZoom: 16});
+  map.on('focus', function () { map.scrollWheelZoom.enable(); });
+  map.on('blur', function () { map.scrollWheelZoom.disable(); });
+
+  function highlight(id) {
+    document.querySelectorAll('.card.is-active').forEach(function (c) { c.classList.remove('is-active'); });
+    var card = document.getElementById(id);
+    if (card) card.classList.add('is-active');
+  }
+  document.querySelectorAll('[data-show]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var n = Number(btn.getAttribute('data-show')), f = flats[n - 1];
+      mapEl.scrollIntoView({behavior: 'smooth', block: 'center'});
+      map.setView([f.lat, f.lng], 17, {animate: true});
+      markers[n].openPopup();
+    });
+  });
+})();
+</script>
+</body>
+</html>
